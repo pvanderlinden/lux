@@ -1,6 +1,6 @@
 
     describe("Test sidebar", function() {
-        //
+
         var digest = function($compile, $rootScope, template) {
                 var scope = $rootScope.$new(),
                     element = $compile(template)(scope);
@@ -9,32 +9,38 @@
             };
 
         beforeEach(function () {
-            module('bmll.sidebar');
+            module('lux.sidebar');
         });
 
         it("sidebar + navbar with user check: directive defaults", inject(function($compile, $rootScope) {
-            var element = digest($compile, $rootScope, '<sidebar></sidebar>');
-            //
-            expect(element[0].tagName).toBe('SIDEBAR');
-            //
-            var nav = angular.element(element.children()[0]);
-            //
+            var sidebar = digest($compile, $rootScope, '<sidebar></sidebar>');
+            var div = angular.element(sidebar.children()[0]);
+            var navbar = angular.element(div.children()[0]);
+            var aside = angular.element(div.children()[1]);
+            var nav = angular.element(navbar.children()[0]);
+            var container = angular.element(nav.children()[0]);
+            var navbarHeader = angular.element(container.children()[0]);
+
+            expect(sidebar[0].tagName).toBe('SIDEBAR');
+            expect(div[0].tagName).toBe('DIV');
+            expect(aside[0].tagName).toBe('ASIDE');
+            expect(aside.hasClass('main-sidebar')).toBe(true);
+            expect(aside.attr('id')).toBeUndefined();
+            expect(navbar[0].tagName).toBe('NAVBAR');
             expect(nav[0].tagName).toBe('NAV');
+
             expect(nav.hasClass('navbar')).toBe(true);
 
-            if ($rootScope.user) {
-                var sidebar = angular.element(element.children()[1]);
+            expect(sidebar.children().length).toBe(2);
 
-                expect(element.children().length).toBe(2);
-                expect(sidebar[0].tagName).toBe('ASIDE');
-                expect(sidebar.hasClass('main-sidebar')).toBe(true);
-                expect(sidebar.attr('id')).toBe('');
+            // Instead of this if statement, there should be 2 separate tests.
+            if ($rootScope.user) {
+                expect(navbarHeader.children().length).toBe(3);
             } else {
-                expect(element.children().length).toBe(1);
+                expect(navbarHeader.children().length).toBe(2);
             }
         }));
-
-
+/*
         it("sidebar + navbar directive with data", inject(function($compile, $rootScope) {
             var template = '<sidebar data-position="left" data-id="sidebar1"></navbar>',
                 element = digest($compile, $rootScope, template),
@@ -90,5 +96,5 @@
                 expect(element.children().length).toBe(1);
             }
         }));
-
+*/
     });
