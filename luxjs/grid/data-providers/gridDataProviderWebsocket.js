@@ -4,15 +4,45 @@
 //	provides data to a lux.grid using websockets
 
 angular.module('lux.grid.dataProviderWebsocket', ['lux.sockjs'])
-    .factory('GridDataProviderWebsocket', ['$rootScope', gridDataProviderWebsocketFactory]);
+    .factory('GridDataProviderWebsocket', ['$rootScope', '$timeout', gridDataProviderWebsocketFactory]);
 
-function gridDataProviderWebsocketFactory ($scope) {
+function gridDataProviderWebsocketFactory ($scope, $timeout) {
 
     function GridDataProviderWebsocket(websocketUrl, channel, listener) {
         this._websocketUrl = websocketUrl;
         this._channel= channel;
         this._listener = listener;
     }
+
+    function onMessage(sock, msg) {
+        /*jshint validthis:true */
+        var tasks;
+
+        if (msg.event === 'record-update') {
+            tasks = msg.data;
+
+            this._listener.onDataReceived({
+                total: msg.total,
+                result: tasks,
+                type: 'update'
+            });
+
+        } else if (msg.event === 'records') {
+            tasks = msg.data;
+
+            this._listener.onDataReceived({
+                total: msg.total,
+                result: tasks,
+                type: 'update'
+            });
+
+            $timeout(sendFakeRecordOnce.bind(this), 0); // TODO Remove this. It's a dummy status update for development.
+
+        } else if (msg.event === 'columns-metadata') {
+            this._listener.onMetadataReceived(msg.data);
+        }
+    }
+
 
     GridDataProviderWebsocket.prototype.destroy = function() {
         this._listener = null;
@@ -24,35 +54,6 @@ function gridDataProviderWebsocketFactory ($scope) {
         function onConnect(sock) {
             /*jshint validthis:true */
             this.getPage();
-        }
-
-        function onMessage(sock, msg) {
-            /*jshint validthis:true */
-            var tasks;
-
-            if (msg.data.event === 'record-update') {
-                tasks = msg.data.data;
-
-                this._listener.onDataReceived({
-                    total: msg.data.total,
-                    result: tasks,
-                    type: 'update'
-                });
-
-            } else if (msg.data.event === 'records') {
-                tasks = msg.data.data;
-
-                this._listener.onDataReceived({
-                    total: msg.data.total,
-                    result: tasks,
-                    type: 'update'
-                });
-
-                setTimeout(sendFakeRecordOnce.bind(this), 0); // TODO Remove this. It's a dummy status update for development.
-
-            } else if (msg.data.event === 'columns-metadata') {
-                this._listener.onMetadataReceived(msg.data.data);
-            }
         }
 
         this._sockJs = $scope.sockJs(this._websocketUrl);
@@ -144,7 +145,20 @@ function gridDataProviderWebsocketFactory ($scope) {
     };
 
     GridDataProviderWebsocket.prototype.getPage = function(options) {
-        this._sockJs.rpc(this._channel, {});
+        var waitForRequest = function() {
+            console.log('waiting for request');
+            var promise = $timeout(function() {
+                console.log('TIMEOUT!');
+            }, 20000);
+
+            return function(data) {
+                console.log('request complete', arguments);
+                $timeout.cancel(promise);
+                onMessage({}, JSON.parse(data)).bind(this);
+            };
+        }.bind(this);
+
+        this._sockJs.rpc(this._channel, {}, waitForRequest());
     };
 
     GridDataProviderWebsocket.prototype.deleteItem = function(identifier, onSuccess, onFailure) {
