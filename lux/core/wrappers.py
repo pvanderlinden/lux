@@ -104,10 +104,19 @@ class HtmlRouter(Router):
     uimodules = RouterParam(None)
     response_content_types = TEXT_CONTENT_TYPES
     template = None
+    _do_before_every_get = None
     '''Inner template'''
 
-    def get(self, request):
+    @classmethod
+    def before_every_get(cls, callback):
+        HtmlRouter._do_before_every_get = callback
+
+    def get(self, request, callback=None):
         html = self.get_html(request)
+
+        if HtmlRouter._do_before_every_get:
+            HtmlRouter._do_before_every_get(request)
+
         return self.html_response(request, html)
 
     def html_response(self, request, html):
