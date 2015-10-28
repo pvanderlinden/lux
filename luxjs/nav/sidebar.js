@@ -76,15 +76,10 @@
                     var item = angular.element($event.currentTarget || $event.srcElement),
                         submenu = item.next();
 
-                    // If the menu is not visible then close all open menus
                     if (submenu.hasClass('active')) {
                         item.removeClass('active');
                         submenu.removeClass('active');
                     } else {
-                        var itemRoot = item.parent().parent();
-                        itemRoot.find('ul').removeClass('active');
-                        itemRoot.find('li').removeClass('active');
-
                         item.parent().addClass('active');
                         submenu.addClass('active');
                     }
