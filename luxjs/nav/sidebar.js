@@ -29,8 +29,20 @@
         //
         .value('navbarTemplate', "nav/templates/navbar.tpl.html")
         //
-        .service('sidebarService', ['linkService', 'navService', 'sidebarDefaults',
-                function (linkService, navService, sidebarDefaults) {
+        .service('sidebarService', ['linkService', 'navService', 'sidebarDefaults', '$window',
+                function (linkService, navService, sidebarDefaults, $window) {
+
+            function updateActiveFlag(node, path) {
+                node.active = node.href === path;
+                if (angular.isArray(node.subitems)) {
+                    angular.forEach(node.subitems, function(item) {
+                        if (updateActiveFlag(item, path)) {
+                            node.active = true;
+                        }
+                    });
+                }
+                return node.active;
+            }
 
             function initSideBar (sidebars, element, sidebar, position) {
                 sidebar = angular.extend({}, sidebarDefaults, sidebar);
@@ -39,7 +51,13 @@
                     element.addClass('sidebar-open-' + position);
                 if (sidebar.sections) {
                     sidebars.push(sidebar);
-                    return sidebar;
+                    angular.forEach(sidebar.sections, function(section) {
+                        if (angular.isArray(section.items)) {
+                            angular.forEach(section.items, function(item) {
+                                updateActiveFlag(item, $window.location.pathname);
+                            });
+                        }
+                    });
                 }
             }
 
@@ -83,6 +101,11 @@
                         item.parent().addClass('active');
                         submenu.addClass('active');
                     }
+                };
+
+                scope.currentPathInNode = function(nodePath) {
+                    var pathToTest = $window.location.pathname;
+                    return pathToTest.substr(0, nodePath.length) === nodePath;
                 };
 
                 scope.navbar = initNavbar(sidebar.navbar, sidebars);

@@ -17,7 +17,7 @@ ng-class="{'sidebar-fixed':sidebar.fixed}" bs-collapse>
             {{section.name}}
         </li>
         <li ng-repeat-end ng-repeat="link in section.items" class="treeview"
-        ng-class="{active:activeLink(link)}" ng-include="'subnav'"></li>
+        ng-class="{active:link.active}" ng-include="'subnav'"></li>
     </ul>
 </aside>
 
@@ -37,8 +37,8 @@ ng-class="{'sidebar-fixed':sidebar.fixed}" bs-collapse>
         <i ng-if="link.icon" class="{{link.icon}}"></i>
         <span>{{link.name}}</span>
     </a>
-    <ul class="treeview-menu" ng-class="link.class" ng-if="link.subitems">
-        <li ng-repeat="link in link.subitems" ng-class="{active:activeLink(link)}" ng-include="'subnav'">
+    <ul class="treeview-menu" ng-if="link.subitems" ng-class="{active:link.active}">
+        <li ng-repeat="link in link.subitems" ng-class="{active:link.active}" ng-include="'subnav'">
         </li>
     </ul>
 </script>
