@@ -95,17 +95,10 @@
                         submenu = item.next();
 
                     if (submenu.hasClass('active')) {
-                        item.removeClass('active');
                         submenu.removeClass('active');
                     } else {
-                        item.parent().addClass('active');
                         submenu.addClass('active');
                     }
-                };
-
-                scope.currentPathInNode = function(nodePath) {
-                    var pathToTest = $window.location.pathname;
-                    return pathToTest.substr(0, nodePath.length) === nodePath;
                 };
 
                 scope.navbar = initNavbar(sidebar.navbar, sidebars);
