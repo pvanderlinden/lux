@@ -92,12 +92,17 @@
                 scope.menuCollapse = function($event) {
                     // Get the clicked link, the submenu and sidebar menu
                     var item = angular.element($event.currentTarget || $event.srcElement),
-                        submenu = item.next();
+                        submenu = item.next(),
+                        folderIcon = item.find('i');
 
-                    if (submenu.hasClass('active')) {
-                        submenu.removeClass('active');
-                    } else {
-                        submenu.addClass('active');
+                    if (submenu.length) {
+                        if (submenu.hasClass('active')) {
+                            submenu.removeClass('active');
+                        } else {
+                            submenu.addClass('active');
+                        }
+                        folderIcon.toggleClass('fa-angle-right');
+                        folderIcon.toggleClass('fa-angle-down');
                     }
                 };
 
