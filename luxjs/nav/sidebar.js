@@ -93,7 +93,8 @@
                     // Get the clicked link, the submenu and sidebar menu
                     var item = angular.element($event.currentTarget || $event.srcElement),
                         submenu = item.next(),
-                        folderIcon = item.find('i');
+                        folderIcon = item.find('i'),
+                        firstIcon;
 
                     if (submenu.length) {
                         if (submenu.hasClass('active')) {
@@ -101,8 +102,11 @@
                         } else {
                             submenu.addClass('active');
                         }
-                        folderIcon.toggleClass('fa-angle-right');
-                        folderIcon.toggleClass('fa-angle-down');
+                        if (folderIcon.length) {
+                            firstIcon = angular.element(folderIcon[0]);
+                            firstIcon.toggleClass('fa-angle-right');
+                            firstIcon.toggleClass('fa-angle-down');
+                        }
                     }
                 };
 
