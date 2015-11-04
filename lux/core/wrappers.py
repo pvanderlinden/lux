@@ -104,16 +104,10 @@ class HtmlRouter(Router):
     uimodules = RouterParam(None)
     response_content_types = TEXT_CONTENT_TYPES
     template = None
-    _modify_request = None
     '''Inner template'''
 
-    @classmethod
-    def modify_request(cls, callback):
-        HtmlRouter._modify_request = callback
-
-    def get(self, request, callback=None):
+    def get(self, request):
         html = self.get_html(request)
-
         return self.html_response(request, html)
 
     def html_response(self, request, html):
@@ -144,9 +138,6 @@ class HtmlRouter(Router):
             page.template = self.getparam('html_body_template',
                                           default='home.html',
                                           parents=True)
-
-        if HtmlRouter._modify_request:
-            HtmlRouter._modify_request(request)
 
         return app.html_response(request, page, context=context)
 
