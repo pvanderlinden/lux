@@ -32,6 +32,7 @@
 </div>
 
 <script type="text/ng-template" id="subnav">
+    <div class="sidebar-node-background">&nbsp;</div>
     <a ng-href="{{link.href}}" ng-attr-title="{{link.title}}" ng-click="menuCollapse($event)">
         <i ng-if="link.subitems" class="fa" ng-class="{'fa-angle-right': !link.active, 'fa-angle-down': link.active}"></i>
         <i ng-if="!link.subitems" class="fa"></i>
