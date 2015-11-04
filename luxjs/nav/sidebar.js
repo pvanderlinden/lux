@@ -29,17 +29,36 @@
         //
         .value('navbarTemplate', "nav/templates/navbar.tpl.html")
         //
-        .service('sidebarService', ['linkService', 'navService', 'sidebarDefaults',
-                function (linkService, navService, sidebarDefaults) {
+        .service('sidebarService', ['linkService', 'navService', 'sidebarDefaults', '$window',
+                function (linkService, navService, sidebarDefaults, $window) {
+
+            function updateActiveFlag(node, path) {
+                node.active = node.href === path;
+                if (angular.isArray(node.subitems)) {
+                    angular.forEach(node.subitems, function(item) {
+                        if (updateActiveFlag(item, path)) {
+                            node.active = true;
+                        }
+                    });
+                }
+                return node.active;
+            }
 
             function initSideBar (sidebars, element, sidebar, position) {
+                var urlPath = $window.location.pathname + $window.location.search;
                 sidebar = angular.extend({}, sidebarDefaults, sidebar);
                 sidebar.position = position;
                 if (!sidebar.collapse)
                     element.addClass('sidebar-open-' + position);
                 if (sidebar.sections) {
                     sidebars.push(sidebar);
-                    return sidebar;
+                    angular.forEach(sidebar.sections, function(section) {
+                        if (angular.isArray(section.items)) {
+                            angular.forEach(section.items, function(item) {
+                                updateActiveFlag(item, urlPath);
+                            });
+                        }
+                    });
                 }
             }
 
@@ -74,14 +93,21 @@
                 scope.menuCollapse = function($event) {
                     // Get the clicked link, the submenu and sidebar menu
                     var item = angular.element($event.currentTarget || $event.srcElement),
-                        submenu = item.next();
+                        submenu = item.next(),
+                        folderIcon = item.find('i'),
+                        firstIcon;
 
-                    if (submenu.hasClass('active')) {
-                        item.removeClass('active');
-                        submenu.removeClass('active');
-                    } else {
-                        item.parent().addClass('active');
-                        submenu.addClass('active');
+                    if (submenu.length) {
+                        if (submenu.hasClass('active')) {
+                            submenu.removeClass('active');
+                        } else {
+                            submenu.addClass('active');
+                        }
+                        if (folderIcon.length) {
+                            firstIcon = angular.element(folderIcon[0]);
+                            firstIcon.toggleClass('fa-angle-right');
+                            firstIcon.toggleClass('fa-angle-down');
+                        }
                     }
                 };
 
