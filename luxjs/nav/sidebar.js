@@ -45,6 +45,7 @@
             }
 
             function initSideBar (sidebars, element, sidebar, position) {
+                var urlPath = $window.location.pathname + $window.location.search;
                 sidebar = angular.extend({}, sidebarDefaults, sidebar);
                 sidebar.position = position;
                 if (!sidebar.collapse)
@@ -54,7 +55,7 @@
                     angular.forEach(sidebar.sections, function(section) {
                         if (angular.isArray(section.items)) {
                             angular.forEach(section.items, function(item) {
-                                updateActiveFlag(item, $window.location.pathname);
+                                updateActiveFlag(item, urlPath);
                             });
                         }
                     });
